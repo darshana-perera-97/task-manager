@@ -52,6 +52,7 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
         'name': nameController.text,
         'description': descriptionController.text,
         'assignedTo': selectedUserIds,
+        'state': 'todo', // Default task state
       }),
     );
 

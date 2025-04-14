@@ -103,6 +103,7 @@ app.post("/api/tasks", async (req, res) => {
     name,
     description,
     assignedTo,
+    state: "todo", // default state
   };
 
   tasks.push(newTask);
@@ -117,12 +118,32 @@ app.get("/api/tasks", async (req, res) => {
   res.json(tasks);
 });
 
+app.patch("/api/tasks/:id", async (req, res) => {
+  const { id } = req.params;
+  const { state } = req.body;
+
+  if (!["todo", "in progress", "done"].includes(state)) {
+    return res.status(400).json({ error: "Invalid state" });
+  }
+
+  const tasks = await loadTasks();
+  const task = tasks.find((t) => t.taskId === id);
+
+  if (!task) {
+    return res.status(404).json({ error: "Task not found" });
+  }
+
+  task.state = state;
+  await saveTasks(tasks);
+
+  res.status(200).json({ message: "Task updated" });
+});
+
 // Get all users (for assignment list)
 app.get("/api/users", async (req, res) => {
   const users = await loadUsers();
   res.json(users);
 });
-
 
 app.listen(PORT, () => {
   console.log(`🚀 Server is running at http://localhost:${PORT}`);
